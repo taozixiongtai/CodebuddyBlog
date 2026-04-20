@@ -1,0 +1,57 @@
+﻿using CodebuddyBlogApi.Data;
+using CodebuddyBlogApi.Models;
+
+namespace CodebuddyBlogApi.Repositories
+{
+    public class ArticleRepository : IArticleRepository
+    {
+        private readonly BlogDbContext _dbContext;
+
+        public ArticleRepository(BlogDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<List<Article>> GetAllArticlesAsync()
+        {
+            return await _dbContext.Articles.GetListAsync();
+        }
+
+        public async Task<Article?> GetArticleByIdAsync(int id)
+        {
+            return await _dbContext.Articles.GetByIdAsync(id);
+        }
+
+        public async Task<List<Article>> GetArticlesByCategoryAsync(int categoryId)
+        {
+            var articleIds = await _dbContext.ArticleCategoryRelations
+                .GetListAsync(x => x.CategoryId == categoryId)
+                .ContinueWith(t => t.Result.Select(x => x.ArticleId).ToList());
+
+            if (!articleIds.Any())
+                return [];
+
+            return await _dbContext.Db.Queryable<Article>()
+                .In(x => x.Id, articleIds)
+                .ToListAsync();
+        }
+
+        public async Task<int> CreateArticleAsync(Article article)
+        {
+            article.CreatedAt = DateTime.UtcNow;
+            article.UpdatedAt = DateTime.UtcNow;
+            return await _dbContext.Articles.InsertAsync(article);
+        }
+
+        public async Task<bool> UpdateArticleAsync(Article article)
+        {
+            article.UpdatedAt = DateTime.UtcNow;
+            return await _dbContext.Articles.UpdateAsync(article);
+        }
+
+        public async Task<bool> DeleteArticleAsync(int id)
+        {
+            return await _dbContext.Articles.DeleteByIdAsync(id);
+        }
+    }
+}

@@ -1,0 +1,55 @@
+﻿using SqlSugar;
+using CodebuddyBlogApi.Models;
+using CodebuddyBlogApi.Data;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// Configure SQLSugar
+var dbPath = Path.Combine(AppContext.BaseDirectory, "blog.db");
+builder.Services.AddSingleton<ISqlSugarClient>(new SqlSugarClient(new ConnectionConfig
+{
+    DbType = DbType.Sqlite,
+    ConnectionString = $"Data Source={dbPath};",
+    IsAutoCloseConnection = true,
+    LanguageType = LanguageType.English,
+    InitKeyType = InitKeyType.Attribute
+}));
+
+var app = builder.Build();
+
+// Initialize database
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+    var initializer = new DbInitializer(db);
+    initializer.Initialize();
+}
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+app.UseCors("AllowAll");
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

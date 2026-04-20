@@ -1,0 +1,304 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using CodebuddyBlogApi.Data;
+using CodebuddyBlogApi.Models;
+using CodebuddyBlogApi.Dtos;
+
+namespace CodebuddyBlogApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ArticlesController : ControllerBase
+    {
+        private readonly BlogDbContext _context;
+
+        public ArticlesController(BlogDbContext context)
+        {
+            _context = context;
+        }
+
+        /// <summary>
+        /// Get articles with pagination and filtering
+        /// </summary>
+        [HttpGet]
+        public ActionResult<ApiResponse<PagedResponse<ArticleDto>>> GetAll(
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] int? categoryId = null,
+            [FromQuery] string? searchText = null)
+        {
+            try
+            {
+                if (pageIndex < 1) pageIndex = 1;
+                if (pageSize < 1) pageSize = 10;
+                if (pageSize > 100) pageSize = 100;
+
+                var query = _context.Articles.Include(a => a.Category).AsQueryable();
+
+                // Filter by category
+                if (categoryId.HasValue && categoryId.Value > 0)
+                {
+                    query = query.Where(a => a.CategoryId == categoryId.Value);
+                }
+
+                // Search by title or summary
+                if (!string.IsNullOrWhiteSpace(searchText))
+                {
+                    query = query.Where(a => a.Title.Contains(searchText) || a.Summary.Contains(searchText));
+                }
+
+                var total = query.Count();
+
+                var articles = query
+                    .OrderByDescending(a => a.CreatedAt)
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                var dtos = articles.Select(a => new ArticleDto
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    Summary = a.Summary,
+                    Content = a.Content,
+                    CategoryId = a.CategoryId,
+                    Category = a.Category != null ? new CategoryDto
+                    {
+                        Id = a.Category.Id,
+                        Name = a.Category.Name,
+                        Description = a.Category.Description,
+                        CreatedAt = a.Category.CreatedAt,
+                        UpdatedAt = a.Category.UpdatedAt
+                    } : null,
+                    Tags = a.Tags,
+                    ViewCount = a.ViewCount,
+                    CreatedAt = a.CreatedAt,
+                    UpdatedAt = a.UpdatedAt
+                }).ToList();
+
+                var pagedResponse = new PagedResponse<ArticleDto>
+                {
+                    Items = dtos,
+                    Total = total,
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
+                };
+
+                return Ok(ApiResponse<PagedResponse<ArticleDto>>.Ok(pagedResponse));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<PagedResponse<ArticleDto>>.Error($"Error: {ex.Message}"));
+            }
+        }
+
+        /// <summary>
+        /// Get article by id
+        /// </summary>
+        [HttpGet("{id}")]
+        public ActionResult<ApiResponse<ArticleDto>> GetById(int id)
+        {
+            try
+            {
+                var article = _context.Articles.Include(a => a.Category).FirstOrDefault(a => a.Id == id);
+                if (article == null)
+                    return NotFound(ApiResponse<ArticleDto>.NotFound("Article not found"));
+
+                // Increment view count
+                article.ViewCount++;
+                _context.Articles.Update(article);
+                _context.SaveChanges();
+
+                var dto = new ArticleDto
+                {
+                    Id = article.Id,
+                    Title = article.Title,
+                    Summary = article.Summary,
+                    Content = article.Content,
+                    CategoryId = article.CategoryId,
+                    Category = article.Category != null ? new CategoryDto
+                    {
+                        Id = article.Category.Id,
+                        Name = article.Category.Name,
+                        Description = article.Category.Description,
+                        CreatedAt = article.Category.CreatedAt,
+                        UpdatedAt = article.Category.UpdatedAt
+                    } : null,
+                    Tags = article.Tags,
+                    ViewCount = article.ViewCount,
+                    CreatedAt = article.CreatedAt,
+                    UpdatedAt = article.UpdatedAt
+                };
+
+                return Ok(ApiResponse<ArticleDto>.Ok(dto));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<ArticleDto>.Error($"Error: {ex.Message}"));
+            }
+        }
+
+        /// <summary>
+        /// Create a new article
+        /// </summary>
+        [HttpPost]
+        public ActionResult<ApiResponse<ArticleDto>> Create([FromBody] CreateArticleDto dto)
+        {
+            try
+            {
+                // Validation
+                if (string.IsNullOrWhiteSpace(dto.Title))
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Article title is required"));
+
+                if (string.IsNullOrWhiteSpace(dto.Summary))
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Article summary is required"));
+
+                if (string.IsNullOrWhiteSpace(dto.Content))
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Article content is required"));
+
+                if (dto.CategoryId <= 0)
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Valid category id is required"));
+
+                // Check if category exists
+                var category = _context.Categories.FirstOrDefault(c => c.Id == dto.CategoryId);
+                if (category == null)
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Category not found"));
+
+                var article = new Article
+                {
+                    Title = dto.Title,
+                    Summary = dto.Summary,
+                    Content = dto.Content,
+                    CategoryId = dto.CategoryId,
+                    Tags = dto.Tags,
+                    ViewCount = 0,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+
+                _context.Articles.Add(article);
+                _context.SaveChanges();
+
+                var articleDto = new ArticleDto
+                {
+                    Id = article.Id,
+                    Title = article.Title,
+                    Summary = article.Summary,
+                    Content = article.Content,
+                    CategoryId = article.CategoryId,
+                    Category = new CategoryDto
+                    {
+                        Id = category.Id,
+                        Name = category.Name,
+                        Description = category.Description,
+                        CreatedAt = category.CreatedAt,
+                        UpdatedAt = category.UpdatedAt
+                    },
+                    Tags = article.Tags,
+                    ViewCount = article.ViewCount,
+                    CreatedAt = article.CreatedAt,
+                    UpdatedAt = article.UpdatedAt
+                };
+
+                return CreatedAtAction(nameof(GetById), new { id = article.Id },
+                    ApiResponse<ArticleDto>.Ok(articleDto, "Article created successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<ArticleDto>.Error($"Error: {ex.Message}"));
+            }
+        }
+
+        /// <summary>
+        /// Update an article
+        /// </summary>
+        [HttpPut("{id}")]
+        public ActionResult<ApiResponse<ArticleDto>> Update(int id, [FromBody] UpdateArticleDto dto)
+        {
+            try
+            {
+                // Validation
+                if (string.IsNullOrWhiteSpace(dto.Title))
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Article title is required"));
+
+                if (string.IsNullOrWhiteSpace(dto.Summary))
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Article summary is required"));
+
+                if (string.IsNullOrWhiteSpace(dto.Content))
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Article content is required"));
+
+                if (dto.CategoryId <= 0)
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Valid category id is required"));
+
+                var article = _context.Articles.Include(a => a.Category).FirstOrDefault(a => a.Id == id);
+                if (article == null)
+                    return NotFound(ApiResponse<ArticleDto>.NotFound("Article not found"));
+
+                // Check if category exists
+                var category = _context.Categories.FirstOrDefault(c => c.Id == dto.CategoryId);
+                if (category == null)
+                    return BadRequest(ApiResponse<ArticleDto>.BadRequest("Category not found"));
+
+                article.Title = dto.Title;
+                article.Summary = dto.Summary;
+                article.Content = dto.Content;
+                article.CategoryId = dto.CategoryId;
+                article.Tags = dto.Tags;
+                article.UpdatedAt = DateTime.Now;
+
+                _context.Articles.Update(article);
+                _context.SaveChanges();
+
+                var articleDto = new ArticleDto
+                {
+                    Id = article.Id,
+                    Title = article.Title,
+                    Summary = article.Summary,
+                    Content = article.Content,
+                    CategoryId = article.CategoryId,
+                    Category = new CategoryDto
+                    {
+                        Id = category.Id,
+                        Name = category.Name,
+                        Description = category.Description,
+                        CreatedAt = category.CreatedAt,
+                        UpdatedAt = category.UpdatedAt
+                    },
+                    Tags = article.Tags,
+                    ViewCount = article.ViewCount,
+                    CreatedAt = article.CreatedAt,
+                    UpdatedAt = article.UpdatedAt
+                };
+
+                return Ok(ApiResponse<ArticleDto>.Ok(articleDto, "Article updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<ArticleDto>.Error($"Error: {ex.Message}"));
+            }
+        }
+
+        /// <summary>
+        /// Delete an article
+        /// </summary>
+        [HttpDelete("{id}")]
+        public ActionResult<ApiResponse<object>> Delete(int id)
+        {
+            try
+            {
+                var article = _context.Articles.FirstOrDefault(a => a.Id == id);
+                if (article == null)
+                    return NotFound(ApiResponse<object>.NotFound("Article not found"));
+
+                _context.Articles.Remove(article);
+                _context.SaveChanges();
+
+                return Ok(ApiResponse<object>.Ok(null, "Article deleted successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.Error($"Error: {ex.Message}"));
+            }
+        }
+    }
+}

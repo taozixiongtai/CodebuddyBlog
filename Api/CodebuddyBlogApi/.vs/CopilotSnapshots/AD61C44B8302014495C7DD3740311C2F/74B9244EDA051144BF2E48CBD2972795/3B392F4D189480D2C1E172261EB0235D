@@ -1,0 +1,26 @@
+﻿using SqlSugar;
+
+namespace CodebuddyBlogApi.Models
+{
+    [SugarTable("categories")]
+    public class Category
+    {
+        [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
+        public int Id { get; set; }
+
+        [SugarColumn(Length = 100, IsNullable = false)]
+        public string Name { get; set; } = string.Empty;
+
+        [SugarColumn(Length = 500, IsNullable = true)]
+        public string? Description { get; set; }
+
+        [SugarColumn(IsNullable = false)]
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [SugarColumn(IsNullable = false)]
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
+        [Navigate(NavigateType.OneToMany, nameof(Article.CategoryId))]
+        public List<Article>? Articles { get; set; }
+    }
+}

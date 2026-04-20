@@ -1,0 +1,110 @@
+﻿using CodebuddyBlogApi.Models;
+
+namespace CodebuddyBlogApi.Data
+{
+    public class DbInitializer
+    {
+        private readonly BlogDbContext _context;
+
+        public DbInitializer(BlogDbContext context)
+        {
+            _context = context;
+        }
+
+        public void Initialize()
+        {
+            // Create database and apply migrations
+            _context.Database.EnsureCreated();
+
+            // Seed initial data if tables are empty
+            SeedData();
+        }
+
+        private void SeedData()
+        {
+            if (_context.Categories.Any())
+                return; // Data already seeded
+
+            var categories = new List<Category>
+            {
+                new Category 
+                { 
+                    Name = "React", 
+                    Description = "React 框架相关文章",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                },
+                new Category 
+                { 
+                    Name = "Hooks", 
+                    Description = "React Hooks 相关技巧",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                },
+                new Category 
+                { 
+                    Name = "Vite", 
+                    Description = "Vite 构建工具相关",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                },
+                new Category 
+                { 
+                    Name = "工程化", 
+                    Description = "前端工程化相关内容",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                },
+                new Category 
+                { 
+                    Name = "TypeScript", 
+                    Description = "TypeScript 相关内容",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                },
+                new Category 
+                { 
+                    Name = "Git", 
+                    Description = "Git 版本控制相关",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                }
+            };
+
+            _context.Categories.AddRange(categories);
+            _context.SaveChanges();
+
+            var reactCategory = _context.Categories.First(c => c.Name == "React");
+            var viteCategory = _context.Categories.First(c => c.Name == "Vite");
+
+            var articles = new List<Article>
+            {
+                new Article
+                {
+                    Title = "React Hooks 使用心得",
+                    Summary = "在实际项目中结合的 React Hooks 使用技巧和常见陷阱，帮助你在开发中少走弯路。",
+                    Content = "# React Hooks 使用心得\n\n## 什么是 Hooks\n\nReact Hooks 是一种让你在函数组件中使用 state 和其他 React 特性的方式。\n\n## 常用 Hooks\n\n### useState\nuseState 是最基础的 Hook，用于管理组件的状态。\n\n### useEffect\nuseEffect 用于在组件中执行副作用操作。\n\n### useContext\nuseContext 用于消费 Context 的值。\n\n## 最佳实践\n\n1. 只在顶层调用 Hook\n2. 只在 React 函数中调用 Hook\n3. 使用 eslint-plugin-react-hooks 检查 Hook 规则",
+                    CategoryId = reactCategory.Id,
+                    Tags = "[\"React\", \"Hooks\"]",
+                    ViewCount = 156,
+                    CreatedAt = new DateTime(2026, 4, 15),
+                    UpdatedAt = new DateTime(2026, 4, 15)
+                },
+                new Article
+                {
+                    Title = "Vite 构建优化实战",
+                    Summary = "分享 Vite 项目构建优化的实践经验，包括代码分割、资源压缩和构建速度提升。",
+                    Content = "# Vite 构建优化实战\n\n## Vite 的优势\n\nVite 是一个基于 ES module 的开发服务器和构建工具。\n\n## 优化策略\n\n### 1. 代码分割\n动态导入实现代码分割，提高首屏加载速度。\n\n### 2. 资源优化\n- 图片优化\n- 字体优化\n- CSS 压缩\n\n### 3. 构建配置优化\n```javascript\nexport default {\n  build: {\n    rollupOptions: {\n      output: {\n        manualChunks: {\n          'vendor': ['react', 'react-dom']\n        }\n      }\n    }\n  }\n}\n```",
+                    CategoryId = viteCategory.Id,
+                    Tags = "[\"Vite\", \"工程化\"]",
+                    ViewCount = 89,
+                    CreatedAt = new DateTime(2026, 4, 10),
+                    UpdatedAt = new DateTime(2026, 4, 10)
+                }
+            };
+
+            _context.Articles.AddRange(articles);
+            _context.SaveChanges();
+        }
+    }
+}
