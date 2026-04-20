@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { App as AntdApp } from 'antd';
 import BlogList from './pages/BlogList';
 import BlogDetail from './pages/BlogDetail';
-import Login from './pages/Login';
 import Admin from './pages/Admin';
 import ArticleEditor from './pages/ArticleEditor';
 
@@ -13,10 +13,6 @@ const router = createBrowserRouter([
   {
     path: '/blog/:id',
     element: <BlogDetail />,
-  },
-  {
-    path: '/login',
-    element: <Login />,
   },
   {
     path: '/admin',
@@ -33,7 +29,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AntdApp>
+      <RouterProvider router={router} />
+    </AntdApp>
+  );
 }
 
 export default App;

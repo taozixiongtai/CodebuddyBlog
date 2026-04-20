@@ -14,11 +14,12 @@ namespace CodebuddyBlogApi.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<PagedResult<ArticleDto>> GetArticlesAsync(int page, int pageSize, int? categoryId = null)
+        public async Task<PagedResult<ArticleDto>> GetArticlesAsync(int page, int pageSize, int? categoryId = null, string? key = null)
         {
             var query = _dbContext.Db.Queryable<Article>()
                 .Includes(a => a.Categories);
 
+            // Filter by category
             if (categoryId.HasValue)
             {
                 var relations = await _dbContext.ArticleCategoryRelations
@@ -31,6 +32,12 @@ namespace CodebuddyBlogApi.Repositories
                 }
 
                 query = query.In(a => a.Id, articleIds);
+            }
+
+            // Filter by search key (title and content)
+            if (!string.IsNullOrWhiteSpace(key))
+            {
+                query = query.Where(a => a.Title.Contains(key) || a.Content.Contains(key));
             }
 
             RefAsync<int> totalCount = 0;

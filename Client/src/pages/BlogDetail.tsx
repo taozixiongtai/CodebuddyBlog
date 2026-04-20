@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { articlesApi, Article } from '../services/api';
+import { articlesApi, Article } from '@/services/api';
+import { formatDate } from '@/utils/format';
 import './BlogDetail.css';
 
 function BlogDetail() {
@@ -23,11 +24,6 @@ function BlogDetail() {
   useEffect(() => {
     loadArticle();
   }, [loadArticle]);
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  };
 
   if (loading) {
     return (

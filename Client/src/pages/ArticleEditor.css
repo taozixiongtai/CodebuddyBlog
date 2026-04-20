@@ -51,6 +51,29 @@
   margin: 0;
 }
 
+.editor-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.editor-back-btn {
+  padding: 10px 24px;
+  background: #fff;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editor-back-btn:hover {
+  color: #1a1a1a;
+  border-color: #999;
+  background: #fafafa;
+}
+
 .editor-save-btn {
   padding: 10px 28px;
   background: #1a1a1a;
@@ -142,6 +165,19 @@
   min-height: 80px;
   resize: vertical;
   font-family: inherit;
+}
+
+/* Tags Selector */
+.editor-tags-group {
+  margin-top: 24px;
+}
+
+.editor-tags-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 /* Tiptap Editor */

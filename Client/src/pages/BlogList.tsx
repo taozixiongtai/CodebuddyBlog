@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { articlesApi, categoriesApi, Article } from '../services/api';
+import { articlesApi, categoriesApi, Article } from '@/services/api';
+import { formatDate } from '@/utils/format';
 import './BlogList.css';
 
 function BlogList() {
@@ -13,12 +14,8 @@ function BlogList() {
   const loadArticles = useCallback(async () => {
     setLoading(true);
     try {
-      let data: Article[];
-      if (selectedCategory) {
-        data = await articlesApi.getByCategory(selectedCategory);
-      } else {
-        data = await articlesApi.getList();
-      }
+      const res = await articlesApi.getList(1, 100, selectedCategory || undefined);
+      const data = res.items || [];
       setArticles(data);
     } catch (e) {
       console.error('加载文章失败', e);
@@ -43,18 +40,13 @@ function BlogList() {
     loadCategories();
   }, [loadCategories]);
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  };
-
   return (
     <div className="blog-list">
       <nav className="blog-nav">
         <Link to="/" className="blog-nav-logo">Blog</Link>
         <div className="blog-nav-actions">
-          <button className="blog-login-btn" onClick={() => navigate('/login')}>
-            登录
+          <button className="blog-login-btn" onClick={() => navigate('/admin')}>
+            后台
           </button>
         </div>
       </nav>

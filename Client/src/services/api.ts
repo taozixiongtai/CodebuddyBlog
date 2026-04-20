@@ -1,5 +1,26 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
+// --- 基础请求封装 ---
+async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const config: RequestInit = {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  };
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, config);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  // 处理可能为空的响应体 (例如 DELETE 请求)
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
+}
+
 // 预设的高饱和度色相列表（避免暗淡和灰色）
 const COLOR_PALETTE = [
   '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#1abc9c',
@@ -8,7 +29,7 @@ const COLOR_PALETTE = [
   '#673ab7', '#03a9f4', '#cddc39', '#ff6f61', '#6b5b95',
 ];
 
-// 基于标签名生成稳定的颜色（相同标签名始终返回相同颜色）
+// 基于标签名生成稳定的颜色
 export function getTagColor(tagName: string): string {
   let hash = 0;
   for (let i = 0; i < tagName.length; i++) {
@@ -18,105 +39,96 @@ export function getTagColor(tagName: string): string {
   return COLOR_PALETTE[index];
 }
 
-export interface Article {
-  id: number | string;
-  title: string | null;
-  content: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Category {
+// --- DTO 类型定义 ---
+export interface CategoryDto {
   id: number;
   name: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-// Articles API
+export interface CategoryCreateDto {
+  name: string;
+}
+
+export interface CategoryUpdateDto {
+  name: string;
+}
+
+export interface ArticleDto {
+  id: number;
+  title: string | null;
+  content: string | null;
+  createdAt: string;
+  updatedAt: string;
+  categories: CategoryDto[] | null;
+}
+
+export interface ArticleCreateDto {
+  title: string;
+  content: string;
+  categoryIds: number[] | null;
+}
+
+export interface ArticleUpdateDto {
+  title: string;
+  content: string;
+  categoryIds: number[] | null;
+}
+
+export interface PagedResultOfArticleDto {
+  items: ArticleDto[] | null;
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export type Article = ArticleDto;
+export type Category = CategoryDto;
+
+// --- Articles API ---
 export const articlesApi = {
-  // 获取文章列表
-  getList: async (): Promise<Article[]> => {
-    const res = await fetch(`${BASE_URL}/Articles`);
-    return res.json();
+  getList: (page: number = 1, pageSize: number = 10, categoryId?: number, key?: string) => {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('pageSize', pageSize.toString());
+    if (categoryId !== undefined) {
+      params.append('categoryId', categoryId.toString());
+    }
+    if (key) {
+      params.append('key', key);
+    }
+    return request<PagedResultOfArticleDto>(`/Articles?${params.toString()}`);
   },
 
-  // 按分类获取文章
-  getByCategory: async (categoryId: number): Promise<Article[]> => {
-    const res = await fetch(`${BASE_URL}/Articles/category/${categoryId}`);
-    return res.json();
-  },
+  getById: (id: number | string) => 
+    request<ArticleDto>(`/Articles/${id}`),
 
-  // 获取文章详情
-  getById: async (id: number): Promise<Article> => {
-    const res = await fetch(`${BASE_URL}/Articles/${id}`);
-    return res.json();
-  },
+  create: (data: ArticleCreateDto) => 
+    request<ArticleDto>('/Articles', { method: 'POST', body: JSON.stringify(data) }),
 
-  // 创建文章
-  create: async (data: Partial<Article>): Promise<Article> => {
-    const res = await fetch(`${BASE_URL}/Articles`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    return res.json();
-  },
+  update: (id: number | string, data: ArticleUpdateDto) => 
+    request<void>(`/Articles/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
-  // 更新文章
-  update: async (id: number, data: Partial<Article>): Promise<void> => {
-    await fetch(`${BASE_URL}/Articles/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-  },
-
-  // 删除文章
-  delete: async (id: number): Promise<void> => {
-    await fetch(`${BASE_URL}/Articles/${id}`, {
-      method: 'DELETE',
-    });
-  },
+  delete: (id: number | string) => 
+    request<void>(`/Articles/${id}`, { method: 'DELETE' }),
 };
 
-// Categories API
+// --- Categories API ---
 export const categoriesApi = {
-  // 获取分类列表
-  getList: async (): Promise<Category[]> => {
-    const res = await fetch(`${BASE_URL}/Categories`);
-    return res.json();
-  },
+  getList: () => 
+    request<CategoryDto[]>('/Categories'),
 
-  // 获取分类详情
-  getById: async (id: number): Promise<Category> => {
-    const res = await fetch(`${BASE_URL}/Categories/${id}`);
-    return res.json();
-  },
+  getById: (id: number | string) => 
+    request<CategoryDto>(`/Categories/${id}`),
 
-  // 创建分类
-  create: async (data: Partial<Category>): Promise<Category> => {
-    const res = await fetch(`${BASE_URL}/Categories`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    return res.json();
-  },
+  create: (data: CategoryCreateDto) => 
+    request<CategoryDto>('/Categories', { method: 'POST', body: JSON.stringify(data) }),
 
-  // 更新分类
-  update: async (id: number, data: Partial<Category>): Promise<void> => {
-    await fetch(`${BASE_URL}/Categories/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-  },
+  update: (id: number | string, data: CategoryUpdateDto) => 
+    request<void>(`/Categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
-  // 删除分类
-  delete: async (id: number): Promise<void> => {
-    await fetch(`${BASE_URL}/Categories/${id}`, {
-      method: 'DELETE',
-    });
-  },
+  delete: (id: number | string) => 
+    request<void>(`/Categories/${id}`, { method: 'DELETE' }),
 };

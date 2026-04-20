@@ -3,12 +3,14 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import { articlesApi } from '../services/api';
+import { Select, Input, Button, message } from 'antd';
+import { articlesApi, categoriesApi, Category } from '@/services/api';
 import './ArticleEditor.css';
 
 interface ArticleForm {
   title: string;
   content: string;
+  categoryIds: number[] | null;
 }
 
 function ArticleEditor() {
@@ -19,8 +21,11 @@ function ArticleEditor() {
   const [form, setForm] = useState<ArticleForm>({
     title: '',
     content: '',
+    categoryIds: null,
   });
   const [saving, setSaving] = useState(false);
+
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const editor = useEditor({
     extensions: [
@@ -35,6 +40,15 @@ function ArticleEditor() {
     },
   });
 
+  const loadCategories = useCallback(async () => {
+    try {
+      const data = await categoriesApi.getList();
+      setCategories(data);
+    } catch (e) {
+      console.error('加载分类失败', e);
+    }
+  }, []);
+
   const loadArticle = useCallback(async () => {
     if (!id) return;
     try {
@@ -42,6 +56,7 @@ function ArticleEditor() {
       setForm({
         title: data.title || '',
         content: data.content || '',
+        categoryIds: data.categories?.map(c => c.id) || null,
       });
       editor?.commands.setContent(data.content || '');
     } catch (e) {
@@ -50,26 +65,30 @@ function ArticleEditor() {
   }, [id, editor]);
 
   useEffect(() => {
+    loadCategories();
     if (isEdit) {
       loadArticle();
     }
-  }, [isEdit, loadArticle]);
+  }, [isEdit, loadArticle, loadCategories]);
 
   const handleSubmit = async () => {
     if (!form.title) {
-      alert('请输入标题');
+      message.warning('请输入标题');
       return;
     }
     setSaving(true);
     try {
       if (isEdit) {
         await articlesApi.update(Number(id), form);
+        message.success('文章已更新');
       } else {
         await articlesApi.create(form);
+        message.success('文章已保存');
       }
       navigate('/admin');
     } catch (e) {
       console.error('保存失败', e);
+      message.error('保存失败，请重试');
     }
     setSaving(false);
   };
@@ -78,23 +97,27 @@ function ArticleEditor() {
     <div className="editor-page">
       <nav className="editor-nav">
         <Link to="/admin" className="editor-nav-logo">Blog</Link>
-        <Link to="/admin" className="editor-nav-back">返回</Link>
       </nav>
 
       <div className="editor-container">
         <div className="editor-header">
           <h1>{isEdit ? '编辑文章' : '新增文章'}</h1>
-          <button className="editor-save-btn" onClick={handleSubmit} disabled={saving}>
-            {saving ? '保存中...' : '保存'}
-          </button>
+          <div className="editor-actions">
+            <Button size="large" onClick={() => navigate('/admin')}>
+              返回
+            </Button>
+            <Button size="large" type="primary" onClick={handleSubmit} loading={saving}>
+              {saving ? '保存中...' : '保存'}
+            </Button>
+          </div>
         </div>
 
         <div className="editor-form">
           <div className="editor-form-group">
-            <input
-              type="text"
+            <Input
               className="editor-title-input"
               placeholder="文章标题"
+              variant="borderless"
               value={form.title}
               onChange={e => setForm({ ...form, title: e.target.value })}
             />
@@ -171,6 +194,18 @@ function ArticleEditor() {
               </button>
             </div>
             <EditorContent editor={editor} className="editor-content" />
+          </div>
+
+          <div className="editor-form-group editor-tags-group">
+            <label>标签</label>
+            <Select
+              mode="multiple"
+              placeholder="搜索或选择标签"
+              value={form.categoryIds || []}
+              onChange={(values) => setForm(prev => ({ ...prev, categoryIds: values }))}
+              style={{ width: '100%' }}
+              options={categories.map(c => ({ label: c.name, value: c.id }))}
+            />
           </div>
         </div>
       </div>

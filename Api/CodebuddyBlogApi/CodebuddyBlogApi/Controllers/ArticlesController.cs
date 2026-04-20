@@ -16,12 +16,12 @@ namespace CodebuddyBlogApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedResult<ArticleDto>>> GetArticles([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] int? categoryId = null)
+        public async Task<ActionResult<PagedResult<ArticleDto>>> GetArticles([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] int? categoryId = null, [FromQuery] string? key = null)
         {
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
-            var result = await _articleRepository.GetArticlesAsync(page, pageSize, categoryId);
+            var result = await _articleRepository.GetArticlesAsync(page, pageSize, categoryId, key);
             return Ok(result);
         }
 
