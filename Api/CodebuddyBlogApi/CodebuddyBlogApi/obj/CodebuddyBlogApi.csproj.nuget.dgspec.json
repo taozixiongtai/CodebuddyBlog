@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\代码\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj": {}
+    "E:\\代码\\CodebuddyBlog\\Api\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj": {}
   },
   "projects": {
-    "E:\\代码\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj": {
+    "E:\\代码\\CodebuddyBlog\\Api\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\代码\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj",
+        "projectUniqueName": "E:\\代码\\CodebuddyBlog\\Api\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj",
         "projectName": "CodebuddyBlogApi",
-        "projectPath": "E:\\代码\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj",
+        "projectPath": "E:\\代码\\CodebuddyBlog\\Api\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj",
         "packagesPath": "C:\\Users\\wjt\\.nuget\\packages\\",
-        "outputPath": "E:\\代码\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi\\obj\\",
+        "outputPath": "E:\\代码\\CodebuddyBlog\\Api\\CodebuddyBlogApi\\CodebuddyBlogApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "E:\\软件\\vs2022共享组件\\NuGetPackages"

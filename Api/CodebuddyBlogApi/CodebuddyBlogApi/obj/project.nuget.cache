@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Nx+NYNoZ7As=",
+  "dgSpecHash": "HOGcSJgsPTo=",
   "success": true,
-  "projectFilePath": "E:\\代码\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj",
+  "projectFilePath": "E:\\代码\\CodebuddyBlog\\Api\\CodebuddyBlogApi\\CodebuddyBlogApi\\CodebuddyBlogApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\wjt\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\wjt\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

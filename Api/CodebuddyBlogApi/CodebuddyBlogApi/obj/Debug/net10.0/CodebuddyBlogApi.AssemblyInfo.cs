@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CodebuddyBlogApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+34d3799dcfa2749718d10b183c3d4c4236fffa49")]
 [assembly: System.Reflection.AssemblyProductAttribute("CodebuddyBlogApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CodebuddyBlogApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
