@@ -7,8 +7,8 @@ namespace CodebuddyBlogApi.Repositories
     {
         Task<List<CategoryDto>> GetAllCategoriesAsync();
         Task<CategoryDto?> GetCategoryByIdAsync(int id);
-        Task<int> CreateCategoryAsync(CategoryCreateDto dto);
-        Task<bool> UpdateCategoryAsync(int id, CategoryUpdateDto dto);
+        Task<int> CreateCategoryAsync(CategoryRequestDto dto);
+        Task<bool> UpdateCategoryAsync(int id, CategoryRequestDto dto);
         Task<bool> DeleteCategoryAsync(int id);
     }
 }

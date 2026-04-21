@@ -1,11 +1,13 @@
 using CodebuddyBlogApi.DTOs;
 using CodebuddyBlogApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CodebuddyBlogApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ArticlesController : ControllerBase
     {
         private readonly IArticleRepository _articleRepository;
@@ -16,6 +18,7 @@ namespace CodebuddyBlogApi.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<PagedResult<ArticleDto>>> GetArticles([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] int? categoryId = null, [FromQuery] string? key = null)
         {
             if (page < 1) page = 1;
@@ -26,6 +29,7 @@ namespace CodebuddyBlogApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<ArticleDto>> GetArticleById(int id)
         {
             var article = await _articleRepository.GetArticleByIdAsync(id);
@@ -36,7 +40,7 @@ namespace CodebuddyBlogApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ArticleDto>> CreateArticle([FromBody] ArticleCreateDto dto)
+        public async Task<ActionResult<ArticleDto>> CreateArticle([FromBody] ArticleRequestDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -48,7 +52,7 @@ namespace CodebuddyBlogApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateArticle(int id, [FromBody] ArticleUpdateDto dto)
+        public async Task<IActionResult> UpdateArticle(int id, [FromBody] ArticleRequestDto dto)
         {
             if (id <= 0)
                 return BadRequest(new { message = "Invalid article ID" });

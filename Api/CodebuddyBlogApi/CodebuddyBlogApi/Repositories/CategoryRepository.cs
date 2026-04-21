@@ -25,7 +25,7 @@ namespace CodebuddyBlogApi.Repositories
             return category == null ? null : MapToDto(category);
         }
 
-        public async Task<int> CreateCategoryAsync(CategoryCreateDto dto)
+        public async Task<int> CreateCategoryAsync(CategoryRequestDto dto)
         {
             var category = new Category
             {
@@ -37,7 +37,7 @@ namespace CodebuddyBlogApi.Repositories
             return category.Id;
         }
 
-        public async Task<bool> UpdateCategoryAsync(int id, CategoryUpdateDto dto)
+        public async Task<bool> UpdateCategoryAsync(int id, CategoryRequestDto dto)
         {
             var category = await _dbContext.Categories.GetByIdAsync(id);
             if (category == null) return false;

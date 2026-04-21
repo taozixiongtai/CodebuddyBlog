@@ -4,21 +4,42 @@
   padding: 0 24px;
 }
 
-/* Navigation */
-.blog-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 0;
-  border-bottom: 1px solid #eee;
+/* Search Tag */
+.blog-search-tag-container {
+  margin-bottom: 24px;
 }
 
-.blog-nav-logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  text-decoration: none;
-  letter-spacing: 2px;
+.blog-search-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--hover-bg);
+  color: var(--text-color);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+}
+
+.blog-search-tag-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 2px;
+  color: var(--text-color);
+  opacity: 0.6;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.blog-search-tag-close:hover {
+  color: #ff4d4f;
+  opacity: 1;
+  background: rgba(255, 77, 79, 0.1);
 }
 
 .blog-search-btn {
@@ -38,27 +59,6 @@
 .blog-search-btn:hover {
   background: #eee;
   color: #1a1a1a;
-}
-
-.blog-nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.blog-login-btn {
-  padding: 8px 20px;
-  background: #1a1a1a;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.blog-login-btn:hover {
-  background: #333;
 }
 
 /* Search Modal */
@@ -117,24 +117,53 @@
   background: #333;
 }
 
+.blog-no-more {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-color);
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+/* Infinite Scroll Styles */
+.blog-load-more {
+  padding: 40px 0;
+  min-height: 20px;
+}
+
+.blog-loading-inline {
+  text-align: center;
+  color: var(--text-color);
+  opacity: 0.7;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.blog-loading-inline::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--text-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Hero Section */
@@ -146,9 +175,17 @@
 .blog-hero-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-color);
   margin: 0;
   letter-spacing: 4px;
+}
+
+.blog-hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  opacity: 0.6;
+  margin-top: 16px;
+  font-weight: 300;
 }
 
 .blog-hero-subtitle {
@@ -174,14 +211,13 @@
 .blog-items {
   display: flex;
   flex-direction: column;
-  gap: 24px;
 }
 
 .blog-loading,
 .blog-empty {
   padding: 60px 0;
   text-align: center;
-  color: #999;
+  color: var(--text-tertiary);
   font-size: 0.95rem;
 }
 
@@ -189,31 +225,33 @@
   display: flex;
   flex-direction: column;
   padding: 24px;
-  background: #fff;
-  border: 1px solid #eee;
+  margin-bottom: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   text-decoration: none;
   color: inherit;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 6px var(--shadow-color);
 }
 
 .blog-card:hover {
-  border-color: #ddd;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: var(--accent-color);
+  box-shadow: 0 6px 16px var(--shadow-color);
   transform: translateY(-2px);
 }
 
 .blog-card-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-color);
   margin: 0 0 12px;
   line-height: 1.4;
 }
 
 .blog-card-summary {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-muted);
   line-height: 1.6;
   margin: 0;
   flex: 1;
@@ -225,7 +263,7 @@
   align-items: center;
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #f5f5f5;
+  border-top: 1px solid var(--divider-color);
 }
 
 .blog-card-tags {
@@ -236,26 +274,28 @@
 .blog-card-tag {
   font-size: 0.7rem;
   font-weight: 500;
-  color: #fff;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-color);
   padding: 4px 10px;
   border-radius: 4px;
 }
 
 .blog-card-date {
-  font-size: 0.8rem;
-  color: #aaa;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 /* Sidebar */
 .blog-sidebar {
-  width: 200px;
+  width: 240px;
   flex-shrink: 0;
 }
 
 .blog-sidebar-title {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #888;
+  color: var(--text-muted);
   margin: 0 0 16px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -272,36 +312,58 @@
   width: 100%;
   padding: 10px 14px;
   background: transparent;
-  border: 1px solid #eee;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--text-muted);
   text-align: left;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .blog-sidebar-tag:hover {
-  border-color: #ddd;
-  background: #fafafa;
+  border-color: var(--border-active);
+  background: var(--hover-bg);
 }
 
 .blog-sidebar-tag.active {
-  background: #1a1a1a;
+  background: var(--hover-bg);
+  border-color: var(--border-active);
+  color: var(--text-color);
+}
+
+/* 仅在日光模式下生效的标签样式优化 */
+html:not(.dark) .blog-sidebar-tag {
+  background: #ffffff; /* 纯白底色，与页面浅灰背景区分 */
+  border-color: #eaeaea;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+html:not(.dark) .blog-sidebar-tag:hover {
+  background: #f5f5f5; /* 悬浮时变成极浅的灰色 */
+  border-color: #d4d4d4;
+  color: #1a1a1a;
+}
+
+html:not(.dark) .blog-sidebar-tag.active {
+  background: #1a1a1a; /* 选中时使用深色背景，现代且醒目 */
   border-color: #1a1a1a;
-  color: #fff;
+  color: #ffffff;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
 /* Footer */
 .blog-footer {
   text-align: center;
   padding: 48px 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: 60px;
 }
 
 .blog-footer p {
-  font-size: 0.8rem;
-  color: #bbb;
   margin: 0;
 }
 

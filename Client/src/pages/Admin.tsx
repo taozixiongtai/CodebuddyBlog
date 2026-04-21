@@ -288,13 +288,18 @@ function Admin() {
       <div className="admin-container">
         <div className="admin-header">
           <h1 className="admin-title">后台管理</h1>
-          <Button 
-            icon={<HomeOutlined />} 
-            onClick={() => navigate('/')}
-            size="large"
-          >
-            首页
-          </Button>
+          <Space>
+            <Button 
+              onClick={() => {
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_auth'); // for backward compatibility if any
+                navigate('/');
+              }}
+              size="large"
+            >
+              退出登录
+            </Button>
+          </Space>
         </div>
 
         <div className="admin-content">

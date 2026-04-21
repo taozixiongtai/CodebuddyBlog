@@ -7,8 +7,8 @@ namespace CodebuddyBlogApi.Repositories
     {
         Task<PagedResult<ArticleDto>> GetArticlesAsync(int page, int pageSize, int? categoryId = null, string? key = null);
         Task<ArticleDto?> GetArticleByIdAsync(int id);
-        Task<int> CreateArticleAsync(ArticleCreateDto dto);
-        Task<bool> UpdateArticleAsync(int id, ArticleUpdateDto dto);
+        Task<int> CreateArticleAsync(ArticleRequestDto dto);
+        Task<bool> UpdateArticleAsync(int id, ArticleRequestDto dto);
         Task<bool> DeleteArticleAsync(int id);
     }
 }

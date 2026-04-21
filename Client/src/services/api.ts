@@ -2,18 +2,26 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // --- 基础请求封装 ---
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const token = localStorage.getItem('admin_token');
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const config: RequestInit = {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers,
   };
 
   const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorText = await response.text();
+    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
   }
 
   // 处理可能为空的响应体 (例如 DELETE 请求)
@@ -86,6 +94,16 @@ export interface PagedResultOfArticleDto {
 
 export type Article = ArticleDto;
 export type Category = CategoryDto;
+
+// --- Auth API ---
+export const authApi = {
+  login: (password: string) => {
+    return request<{ token: string; expiration: string }>('/Auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    });
+  },
+};
 
 // --- Articles API ---
 export const articlesApi = {

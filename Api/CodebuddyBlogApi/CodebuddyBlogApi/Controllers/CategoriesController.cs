@@ -1,11 +1,13 @@
 using CodebuddyBlogApi.DTOs;
 using CodebuddyBlogApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CodebuddyBlogApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryRepository _categoryRepository;
@@ -16,6 +18,7 @@ namespace CodebuddyBlogApi.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<CategoryDto>>> GetAllCategories()
         {
             var categories = await _categoryRepository.GetAllCategoriesAsync();
@@ -23,6 +26,7 @@ namespace CodebuddyBlogApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<CategoryDto>> GetCategoryById(int id)
         {
             var category = await _categoryRepository.GetCategoryByIdAsync(id);
@@ -33,7 +37,7 @@ namespace CodebuddyBlogApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] CategoryCreateDto dto)
+        public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] CategoryRequestDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -45,7 +49,7 @@ namespace CodebuddyBlogApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateDto dto)
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryRequestDto dto)
         {
             if (id <= 0)
                 return BadRequest(new { message = "Invalid category ID" });

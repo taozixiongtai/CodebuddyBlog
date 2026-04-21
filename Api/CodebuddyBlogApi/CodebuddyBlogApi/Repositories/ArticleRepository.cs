@@ -63,7 +63,7 @@ namespace CodebuddyBlogApi.Repositories
             return article == null ? null : MapToDto(article);
         }
 
-        public async Task<int> CreateArticleAsync(ArticleCreateDto dto)
+        public async Task<int> CreateArticleAsync(ArticleRequestDto dto)
         {
             var article = new Article
             {
@@ -98,7 +98,7 @@ namespace CodebuddyBlogApi.Repositories
             }
         }
 
-        public async Task<bool> UpdateArticleAsync(int id, ArticleUpdateDto dto)
+        public async Task<bool> UpdateArticleAsync(int id, ArticleRequestDto dto)
         {
             await _dbContext.Db.Ado.BeginTranAsync();
             try
